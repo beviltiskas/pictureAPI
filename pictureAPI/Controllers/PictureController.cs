@@ -2,9 +2,6 @@
 using pictureAPI.Data.Dtos.Picture;
 using pictureAPI.Data.Entities;
 using pictureAPI.Data.Repository;
-using System.Text.Json;
-using AutoMapper;
-using pictureAPI.Data.Dtos.Album;
 
 namespace pictureAPI.Controllers
 {
@@ -14,18 +11,20 @@ namespace pictureAPI.Controllers
     {
         private readonly IPicturesRepository picturesRepository;
         private readonly IAlbumsRepository albumsRepository;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public PictureController(IPicturesRepository picturesRepository, IAlbumsRepository albumsRepository)
+        public PictureController(IPicturesRepository picturesRepository, IAlbumsRepository albumsRepository, IWebHostEnvironment hostEnvironment)
         {
             this.picturesRepository = picturesRepository;
             this.albumsRepository = albumsRepository;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
         public async Task<IEnumerable<PictureDto>> GetMany(Guid albumId)
         {
             var pictures = await picturesRepository.GetManyAsync(albumId);
-            return pictures.Select(x => new PictureDto(x.Id, x.Name, x.Description, x.CreationDate, x.IsSold, x.Price));
+            return pictures.Select(x => new PictureDto(x.Id, x.Name, x.Description, x.CreationDate, x.IsSold, x.Price, x.Image, x.ImagePath));
         }
 
         [HttpGet]
@@ -37,13 +36,13 @@ namespace pictureAPI.Controllers
             if (picture == null)
                 return NotFound();
 
-            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price);
+            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath);
             return Ok(new { Resource = pictureDto });
         }
 
         [HttpPost]
         [Route("create")]
-        public async Task<ActionResult<PictureDto>> Create(Guid portfolioId, Guid albumId, CreatePictureDto createPictureDto)
+        public async Task<ActionResult<PictureDto>> Create(Guid portfolioId, Guid albumId, [FromForm]CreatePictureDto createPictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
             if (album == null) return NotFound($"Couldn't find a album with id of {albumId}");
@@ -54,6 +53,7 @@ namespace pictureAPI.Controllers
                 Description = createPictureDto.Description,
                 CreationDate = DateTime.UtcNow,
                 Price = createPictureDto.Price,
+                Image = createPictureDto.Image,
             };
             if (picture.Price == 0)
             {
@@ -64,10 +64,13 @@ namespace pictureAPI.Controllers
                 picture.IsSold = true;
 
             }
+
+            picture.ImagePath = await SaveImage(picture.Image);
+
             picture.Album = album;
             await picturesRepository.CreateAsync(picture);
 
-            return Created("", new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price));
+            return Created("", new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath));
         }
 
         [HttpPut]
@@ -96,7 +99,7 @@ namespace pictureAPI.Controllers
             }
             await picturesRepository.UpdateAsync(picture);
 
-            return Ok(new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price));
+            return Ok(new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath));
         }
 
         [HttpDelete]
@@ -112,5 +115,28 @@ namespace pictureAPI.Controllers
 
             return NoContent();
         }
+
+        [NonAction]
+        public async Task<string> SaveImage(IFormFile imageFile)
+        {
+            string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName).Take(10).ToArray()).Replace(' ', '-');
+            imageName = imageName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(imageFile.FileName);
+            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot/Images", imageName);
+            using (var fileStream = new FileStream(imagePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+            return imageName;
+        }
+
+        [NonAction]
+        public void DeleteImage(string imageName)
+        {
+            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, "Images", imageName);
+            if (System.IO.File.Exists(imagePath))
+                System.IO.File.Delete(imagePath);
+        }
+
     }
 }
+

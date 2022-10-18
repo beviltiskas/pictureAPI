@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Hosting;
 using pictureAPI.Data;
 using pictureAPI.Data.Repository;
 
@@ -8,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<PictureAPIDbContext>();
 builder.Services.AddTransient<IPicturesRepository, PicturesRepository>();
 builder.Services.AddTransient<IAlbumsRepository, AlbumsRepository>();
@@ -27,6 +27,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
