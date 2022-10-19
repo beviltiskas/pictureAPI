@@ -10,8 +10,10 @@ namespace pictureAPI.Data.Entities
         public DateTime CreationDate { get; set; }
         public bool IsSold { get; set; }
         public int Price { get; set; }
+        public string ImageName { get; set; }
         [NotMapped]
         public IFormFile Image { get; set; }
+        [NotMapped]
         public string ImagePath { get; set; }
         public Album Album { get; set; }
     }

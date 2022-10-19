@@ -4,23 +4,22 @@
 
 namespace pictureAPI.Migrations
 {
-    public partial class image : Migration
+    public partial class fixedImage : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.RenameColumn(
                 name: "ImagePath",
                 table: "Pictures",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+                newName: "ImageName");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ImagePath",
-                table: "Pictures");
+            migrationBuilder.RenameColumn(
+                name: "ImageName",
+                table: "Pictures",
+                newName: "ImagePath");
         }
     }
 }

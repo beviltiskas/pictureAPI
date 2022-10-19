@@ -12,8 +12,8 @@ using pictureAPI.Data;
 namespace pictureAPI.Migrations
 {
     [DbContext(typeof(PictureAPIDbContext))]
-    [Migration("20221018230806_image")]
-    partial class image
+    [Migration("20221019001947_fixedImage")]
+    partial class fixedImage
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -67,7 +67,7 @@ namespace pictureAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImagePath")
+                    b.Property<string>("ImageName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

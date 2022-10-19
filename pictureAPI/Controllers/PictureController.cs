@@ -24,7 +24,7 @@ namespace pictureAPI.Controllers
         public async Task<IEnumerable<PictureDto>> GetMany(Guid albumId)
         {
             var pictures = await picturesRepository.GetManyAsync(albumId);
-            return pictures.Select(x => new PictureDto(x.Id, x.Name, x.Description, x.CreationDate, x.IsSold, x.Price, x.Image, x.ImagePath));
+            return pictures.Select(x => new PictureDto(x.Id, x.Name, x.Description, x.CreationDate, x.IsSold, x.Price, x.ImageName, x.Image, x.ImagePath= String.Format("{0}://{1}{2}/Images/{3}", Request.Scheme, Request.Host, Request.PathBase, x.ImageName)));
         }
 
         [HttpGet]
@@ -36,7 +36,7 @@ namespace pictureAPI.Controllers
             if (picture == null)
                 return NotFound();
 
-            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath);
+            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.ImageName, picture.Image, picture.ImagePath);
             return Ok(new { Resource = pictureDto });
         }
 
@@ -65,17 +65,17 @@ namespace pictureAPI.Controllers
 
             }
 
-            picture.ImagePath = await SaveImage(picture.Image);
+            picture.ImageName = await SaveImage(picture.Image);
 
             picture.Album = album;
             await picturesRepository.CreateAsync(picture);
 
-            return Created("", new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath));
+            return Created("", new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.ImageName, picture.Image, picture.ImagePath));
         }
 
         [HttpPut]
         [Route("update/{pictureId}")]
-        public async Task<ActionResult<PictureDto>> Update(Guid portfolioId, Guid albumId, Guid pictureId, UpdatePictureDto updatePictureDto)
+        public async Task<ActionResult<PictureDto>> Update(Guid portfolioId, Guid albumId, Guid pictureId, [FromForm]UpdatePictureDto updatePictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
             if (album == null) return NotFound($"Couldn't find a album with id of {albumId}");
@@ -97,9 +97,16 @@ namespace pictureAPI.Controllers
                 picture.IsSold = true;
 
             }
+
+            if (updatePictureDto.Image != null)
+            {
+                DeleteImage(picture.ImageName);
+                picture.ImageName = await SaveImage(updatePictureDto.Image);
+            }
+
             await picturesRepository.UpdateAsync(picture);
 
-            return Ok(new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.Image, picture.ImagePath));
+            return Ok(new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.ImageName, picture.Image, picture.ImagePath));
         }
 
         [HttpDelete]
@@ -110,6 +117,8 @@ namespace pictureAPI.Controllers
 
             if (picture == null)
                 return NotFound();
+
+            DeleteImage(picture.ImageName);
 
             await picturesRepository.DeleteAsync(picture);
 
@@ -132,7 +141,7 @@ namespace pictureAPI.Controllers
         [NonAction]
         public void DeleteImage(string imageName)
         {
-            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, "Images", imageName);
+            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot/Images", imageName);
             if (System.IO.File.Exists(imagePath))
                 System.IO.File.Delete(imagePath);
         }
