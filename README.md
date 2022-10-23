@@ -34,10 +34,11 @@ Administratorius galės:
   2. Patvirtinti pardavėjų sukurtus skelbimus.
   3. Šalinti pasirinktus pardavėjus.
   4. Šalinti netinkamus skelbimus.
-  2. Sistemos architektūra
-Sistema sudarys:
+  
+Sistemos architektūra Sistema sudarys:
 
   • Kliento pusė – React.js
+  
   • Serverio pusė – .NET Core, duomenų bazė – MS SQL Server.
   
 Žemiau pateiktame paveiksliuke matome sistemos diegimo diagrama. Sistemos talpinimui
