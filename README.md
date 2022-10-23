@@ -16,6 +16,7 @@ Svečias projekte galės:
   1. Peržiūrėti pradinį puslapį.
   2. Registruotis į internetinį puslapį.
   3. Prisijungti prie internetinio puslapio.
+  
 Registruotas naudotojas (pardavėjas) galės:
   1. Prisijungti prie aplikacijos.
   2. Atsijungti nuo aplikacijos.
@@ -27,6 +28,7 @@ Registruotas naudotojas (pardavėjas) galės:
   8. Peržiūrėti kitų pardavėjų įkeltas nuotraukas ar albumus.
   9. Komentuoti kitų naudotojų nuotraukas ar albumus.
   10. Nusipirkti nuotrauką ar albumą.
+  
 Administratorius galės:
   1. Patvirtinti pardavėjo registraciją.
   2. Patvirtinti pardavėjų sukurtus skelbimus.
