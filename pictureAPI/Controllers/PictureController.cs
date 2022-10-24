@@ -41,7 +41,6 @@ namespace pictureAPI.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
         public async Task<ActionResult<PictureDto>> Create(Guid portfolioId, Guid albumId, [FromForm]CreatePictureDto createPictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
@@ -74,7 +73,7 @@ namespace pictureAPI.Controllers
         }
 
         [HttpPut]
-        [Route("update/{pictureId}")]
+        [Route("{pictureId}")]
         public async Task<ActionResult<PictureDto>> Update(Guid portfolioId, Guid albumId, Guid pictureId, [FromForm]UpdatePictureDto updatePictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
@@ -110,7 +109,7 @@ namespace pictureAPI.Controllers
         }
 
         [HttpDelete]
-        [Route("delete/{pictureId}")]
+        [Route("{pictureId}")]
         public async Task<ActionResult> Remove(Guid albumId, Guid pictureId)
         {
             var picture = await picturesRepository.GetAsync(albumId, pictureId);

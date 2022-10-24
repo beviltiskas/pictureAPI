@@ -40,23 +40,22 @@ namespace pictureAPI.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
         public async Task<ActionResult<PortfolioDto>> Create(CreatePortfolioDto createPortfolioDto)
         {
             var portfolio = new Portfolio
             { 
                 Name = createPortfolioDto.Name, 
                 Description = createPortfolioDto.Description, 
-                CreationDate = DateTime.UtcNow 
+                
             };
-
+            portfolio.CreationDate = DateTime.UtcNow;
             await portfoliosRepository.CreateAsync(portfolio);
 
             return Created("", new PortfolioDto(portfolio.Id, portfolio.Name, portfolio.Description, portfolio.CreationDate));
         }
 
         [HttpPut]
-        [Route("update/{portfolioId}")]
+        [Route("{portfolioId}")]
         public async Task<ActionResult<PortfolioDto>> Update(Guid portfolioId, UpdatePortfolioDto updatePortfolioDto)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
@@ -72,7 +71,7 @@ namespace pictureAPI.Controllers
         }
 
         [HttpDelete]
-        [Route("delete/{portfolioId}")]
+        [Route("{portfolioId}")]
         public async Task<ActionResult> Remove(Guid portfolioId)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
