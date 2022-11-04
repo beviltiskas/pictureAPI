@@ -1,22 +1,25 @@
-﻿using AutoMapper;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using pictureAPI.Auth.Model;
 using pictureAPI.Data.Dtos.Portfolio;
 using pictureAPI.Data.Entities;
 using pictureAPI.Data.Repository;
-using System.Reflection.Metadata.Ecma335;
-using System.Xml.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace pictureAPI.Controllers
 {
     [ApiController]
     [Route("api/portfolios/")]
-    public class PortfolioController:ControllerBase
+    public class PortfolioController : ControllerBase
     {
         private readonly IPortfoliosRepository portfoliosRepository;
+        private readonly IAuthorizationService authorizationService;
 
-        public PortfolioController(IPortfoliosRepository portfoliosRepository)
+        public PortfolioController(IPortfoliosRepository portfoliosRepository, IAuthorizationService authorizationService)
         {
             this.portfoliosRepository = portfoliosRepository;
+            this.authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -36,19 +39,20 @@ namespace pictureAPI.Controllers
                 return NotFound();
 
             var portfolioDto = new PortfolioDto(portfolio.Id, portfolio.Name, portfolio.Description, portfolio.CreationDate);
-            return Ok(new { Resource = portfolioDto});
+            return Ok(new { Resource = portfolioDto });
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<PortfolioDto>> Create(CreatePortfolioDto createPortfolioDto)
         {
             var portfolio = new Portfolio
-            { 
-                Name = createPortfolioDto.Name, 
-                Description = createPortfolioDto.Description, 
-                
+            {
+                Name = createPortfolioDto.Name,
+                Description = createPortfolioDto.Description,
+                CreationDate = DateTime.UtcNow,
+                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
             };
-            portfolio.CreationDate = DateTime.UtcNow;
             await portfoliosRepository.CreateAsync(portfolio);
 
             return Created("", new PortfolioDto(portfolio.Id, portfolio.Name, portfolio.Description, portfolio.CreationDate));
@@ -56,12 +60,20 @@ namespace pictureAPI.Controllers
 
         [HttpPut]
         [Route("{portfolioId}")]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<PortfolioDto>> Update(Guid portfolioId, UpdatePortfolioDto updatePortfolioDto)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
 
             if (portfolio == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, portfolio, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 404
+                return Forbid();
+            }
 
             portfolio.Name = updatePortfolioDto.Name;
             portfolio.Description = updatePortfolioDto.Description;

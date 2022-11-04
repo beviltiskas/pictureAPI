@@ -36,7 +36,7 @@ namespace pictureAPI.Controllers
             if (picture == null)
                 return NotFound();
 
-            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.ImageName, picture.Image, picture.ImagePath);
+            var pictureDto = new PictureDto(picture.Id, picture.Name, picture.Description, picture.CreationDate, picture.IsSold, picture.Price, picture.ImageName, picture.Image, picture.ImagePath = String.Format("{0}://{1}{2}/Images/{3}", Request.Scheme, Request.Host, Request.PathBase, picture.ImageName));
             return Ok(new { Resource = pictureDto });
         }
 
@@ -58,7 +58,7 @@ namespace pictureAPI.Controllers
             {
                 picture.IsSold = false;
             }
-            else
+            else if(picture.Price > 0)
             {
                 picture.IsSold = true;
 
@@ -91,7 +91,7 @@ namespace pictureAPI.Controllers
             {
                 picture.IsSold = false;
             }
-            else
+            else if (picture.Price > 0)
             {
                 picture.IsSold = true;
 
