@@ -12,7 +12,7 @@ using pictureAPI.Data;
 namespace pictureAPI.Migrations
 {
     [DbContext(typeof(PictureAPIDbContext))]
-    [Migration("20221104173023_identity")]
+    [Migration("20221104191113_identity")]
     partial class identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,9 +164,6 @@ namespace pictureAPI.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("AdditionalInfo")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

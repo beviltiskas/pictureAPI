@@ -74,6 +74,7 @@ app.UseCors("corspolicy");
 
 app.MapControllers();
 
+//app.UseAuthorization();
 app.UseAuthentication();
 app.UseAuthorization();
 
