@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using pictureAPI.Data.Entities;
 
 namespace pictureAPI.Data.Repository
@@ -14,10 +15,12 @@ namespace pictureAPI.Data.Repository
     public class PortfoliosRepository : IPortfoliosRepository
     {
         private readonly PictureAPIDbContext pictureAPIDbContext;
+        private readonly IAuthorizationService authorizationService;
 
-        public PortfoliosRepository(PictureAPIDbContext pictureAPIDbContext)
+        public PortfoliosRepository(PictureAPIDbContext pictureAPIDbContext, IAuthorizationService authorizationService)
         {
             this.pictureAPIDbContext = pictureAPIDbContext;
+            this.authorizationService = authorizationService;
         }
 
         public async Task<Portfolio?> GetAsync(Guid portId)

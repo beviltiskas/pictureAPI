@@ -12,8 +12,8 @@ using pictureAPI.Data;
 namespace pictureAPI.Migrations
 {
     [DbContext(typeof(PictureAPIDbContext))]
-    [Migration("20221104191113_identity")]
-    partial class identity
+    [Migration("20221104212933_init-identity")]
+    partial class initidentity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

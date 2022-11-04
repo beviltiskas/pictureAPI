@@ -38,6 +38,11 @@ builder.Services.AddTransient<IPicturesRepository, PicturesRepository>();
 builder.Services.AddTransient<IAlbumsRepository, AlbumsRepository>();
 builder.Services.AddTransient<IPortfoliosRepository, PortfoliosRepository>();
 
+/*builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
+{
+    build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));*/
+
 builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthDbSeeder>();
 
@@ -52,11 +57,6 @@ builder.Services.AddSingleton<IAuthorizationHandler, ResourceOwnerAuthorizationH
 /*builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();*/
 
-builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
-{
-    build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-}));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -66,11 +66,13 @@ var app = builder.Build();
     app.UseSwaggerUI();
 }*/
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseStaticFiles();
+//app.UseStaticFiles();
 
-app.UseCors("corspolicy");
+//app.UseCors("corspolicy");
+
+app.UseRouting();
 
 app.MapControllers();
 
