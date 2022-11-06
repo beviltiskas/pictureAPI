@@ -84,12 +84,20 @@ namespace pictureAPI.Controllers
 
         [HttpDelete]
         [Route("{portfolioId}")]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult> Remove(Guid portfolioId)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
 
             if (portfolio == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, portfolio, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 404
+                return Forbid();
+            }
 
             await portfoliosRepository.DeleteAsync(portfolio);
 

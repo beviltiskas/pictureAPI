@@ -244,7 +244,7 @@ namespace pictureAPI.Migrations
 
                     b.HasIndex("PortfolioId");
 
-                    b.ToTable("Albums");
+                    b.ToTable("Albums", (string)null);
                 });
 
             modelBuilder.Entity("pictureAPI.Data.Entities.Picture", b =>
@@ -281,7 +281,7 @@ namespace pictureAPI.Migrations
 
                     b.HasIndex("AlbumId");
 
-                    b.ToTable("Pictures");
+                    b.ToTable("Pictures", (string)null);
                 });
 
             modelBuilder.Entity("pictureAPI.Data.Entities.Portfolio", b =>
@@ -309,7 +309,7 @@ namespace pictureAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Portfolios");
+                    b.ToTable("Portfolios", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

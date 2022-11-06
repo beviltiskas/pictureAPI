@@ -1,4 +1,7 @@
-﻿namespace pictureAPI.Data.Entities
+﻿using pictureAPI.Auth.Model;
+using System.ComponentModel.DataAnnotations;
+
+namespace pictureAPI.Data.Entities
 {
     public class Album
     {

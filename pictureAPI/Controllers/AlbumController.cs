@@ -1,10 +1,15 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using pictureAPI.Auth.Model;
 using pictureAPI.Data.Dtos.Album;
 using pictureAPI.Data.Dtos.Portfolio;
 using pictureAPI.Data.Entities;
 using pictureAPI.Data.Repository;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace pictureAPI.Controllers
@@ -15,11 +20,13 @@ namespace pictureAPI.Controllers
     {
         private readonly IPortfoliosRepository portfoliosRepository;
         private readonly IAlbumsRepository albumsRepository;
+        private readonly IAuthorizationService authorizationService;
 
-        public AlbumController(IPortfoliosRepository portfoliosRepository, IAlbumsRepository albumsRepository)
+        public AlbumController(IPortfoliosRepository portfoliosRepository, IAlbumsRepository albumsRepository, IAuthorizationService authorizationService)
         {
             this.portfoliosRepository = portfoliosRepository;
             this.albumsRepository = albumsRepository;
+            this.authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -42,6 +49,7 @@ namespace pictureAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<AlbumDto>> Create(Guid portfolioId, CreateAlbumDto createAlbumDto)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
@@ -50,7 +58,7 @@ namespace pictureAPI.Controllers
             var album = new Album {
                 Name = createAlbumDto.Name,
                 Description = createAlbumDto.Description,
-                CreationDate = DateTime.UtcNow,
+                CreationDate = DateTime.UtcNow
             };
             album.Portfolio = portfolio;
 
@@ -61,6 +69,7 @@ namespace pictureAPI.Controllers
 
         [HttpPut]
         [Route("{albumId}")]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<AlbumDto>> Update(Guid portfolioId, Guid albumId, UpdateAlbumDto updateAlbumDto)
         {
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
@@ -69,6 +78,13 @@ namespace pictureAPI.Controllers
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
             if (album == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, album.Portfolio, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 404
+                return Forbid();
+            }
 
             album.Name = updateAlbumDto.Name;
             album.Description = updateAlbumDto.Description;
@@ -79,12 +95,20 @@ namespace pictureAPI.Controllers
 
         [HttpDelete]
         [Route("{albumId}")]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult> Remove(Guid portfolioId, Guid albumId)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
 
             if (album == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, album.Portfolio, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 404
+                return Forbid();
+            }
 
             await albumsRepository.DeleteAsync(album);
 
