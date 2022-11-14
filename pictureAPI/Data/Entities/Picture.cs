@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using pictureAPI.Auth.Model;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pictureAPI.Data.Entities
 {
-    public class Picture
+    public class Picture : IUserOwnedResource
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -16,5 +17,8 @@ namespace pictureAPI.Data.Entities
         [NotMapped]
         public string ImagePath { get; set; }
         public Album Album { get; set; }
+
+        public string? UserId { get; set; }
+        public AppUser? User { get; set; }
     }
 }

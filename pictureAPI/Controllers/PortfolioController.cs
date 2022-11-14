@@ -71,7 +71,7 @@ namespace pictureAPI.Controllers
             var authorizationResult = await authorizationService.AuthorizeAsync(User, portfolio, PolicyNames.ResourceOwner);
             if (!authorizationResult.Succeeded)
             {
-                // 404
+                // 403
                 return Forbid();
             }
 
@@ -95,7 +95,7 @@ namespace pictureAPI.Controllers
             var authorizationResult = await authorizationService.AuthorizeAsync(User, portfolio, PolicyNames.ResourceOwner);
             if (!authorizationResult.Succeeded)
             {
-                // 404
+                // 403
                 return Forbid();
             }
 

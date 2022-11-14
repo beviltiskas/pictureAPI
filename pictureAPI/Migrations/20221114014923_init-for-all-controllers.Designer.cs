@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pictureAPI.Data;
 
@@ -11,9 +12,10 @@ using pictureAPI.Data;
 namespace pictureAPI.Migrations
 {
     [DbContext(typeof(PictureAPIDbContext))]
-    partial class PictureAPIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221114014923_init-for-all-controllers")]
+    partial class initforallcontrollers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

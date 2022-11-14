@@ -58,7 +58,8 @@ namespace pictureAPI.Controllers
             var album = new Album {
                 Name = createAlbumDto.Name,
                 Description = createAlbumDto.Description,
-                CreationDate = DateTime.UtcNow
+                CreationDate = DateTime.UtcNow,
+                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
             };
             album.Portfolio = portfolio;
 
@@ -79,10 +80,10 @@ namespace pictureAPI.Controllers
             if (album == null)
                 return NotFound();
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, album.Portfolio, PolicyNames.ResourceOwner);
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, album, PolicyNames.ResourceOwner);
             if (!authorizationResult.Succeeded)
             {
-                // 404
+                // 403
                 return Forbid();
             }
 
@@ -98,15 +99,18 @@ namespace pictureAPI.Controllers
         [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult> Remove(Guid portfolioId, Guid albumId)
         {
+            var portfolio = await portfoliosRepository.GetAsync(portfolioId);
+            if (portfolio == null) return NotFound($"Couldn't find a portfolio with id of {portfolioId}");
+
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
 
             if (album == null)
                 return NotFound();
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, album.Portfolio, PolicyNames.ResourceOwner);
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, album, PolicyNames.ResourceOwner);
             if (!authorizationResult.Succeeded)
             {
-                // 404
+                // 403
                 return Forbid();
             }
 

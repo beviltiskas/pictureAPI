@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using pictureAPI.Auth.Model;
 using pictureAPI.Data.Dtos.Picture;
 using pictureAPI.Data.Entities;
 using pictureAPI.Data.Repository;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace pictureAPI.Controllers
 {
@@ -12,12 +16,16 @@ namespace pictureAPI.Controllers
         private readonly IPicturesRepository picturesRepository;
         private readonly IAlbumsRepository albumsRepository;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly IAuthorizationService authorizationService;
+        private readonly IPortfoliosRepository portfoliosRepository;
 
-        public PictureController(IPicturesRepository picturesRepository, IAlbumsRepository albumsRepository, IWebHostEnvironment hostEnvironment)
+        public PictureController(IPicturesRepository picturesRepository, IAlbumsRepository albumsRepository, IWebHostEnvironment hostEnvironment, IAuthorizationService authorizationService, IPortfoliosRepository portfoliosRepository)
         {
             this.picturesRepository = picturesRepository;
             this.albumsRepository = albumsRepository;
             _hostEnvironment = hostEnvironment;
+            this.authorizationService = authorizationService;
+            this.portfoliosRepository = portfoliosRepository;
         }
 
         [HttpGet]
@@ -53,6 +61,7 @@ namespace pictureAPI.Controllers
                 CreationDate = DateTime.UtcNow,
                 Price = createPictureDto.Price,
                 Image = createPictureDto.Image,
+                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
             };
             if (picture.Price == 0)
             {
@@ -74,6 +83,7 @@ namespace pictureAPI.Controllers
 
         [HttpPut]
         [Route("{pictureId}")]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<PictureDto>> Update(Guid portfolioId, Guid albumId, Guid pictureId, [FromForm]UpdatePictureDto updatePictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
@@ -83,6 +93,13 @@ namespace pictureAPI.Controllers
 
             if (picture == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, picture, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 403
+                return Forbid();
+            }
 
             picture.Name = updatePictureDto.Name;
             picture.Description = updatePictureDto.Description;
@@ -110,12 +127,23 @@ namespace pictureAPI.Controllers
 
         [HttpDelete]
         [Route("{pictureId}")]
-        public async Task<ActionResult> Remove(Guid albumId, Guid pictureId)
+        [Authorize(Roles = UserRoles.AppUser)]
+        public async Task<ActionResult> Remove(Guid albumId, Guid pictureId, Guid portfolioId)
         {
+            var album = await albumsRepository.GetAsync(portfolioId, albumId);
+            if (album == null) return NotFound($"Couldn't find a album with id of {albumId}");
+
             var picture = await picturesRepository.GetAsync(albumId, pictureId);
 
             if (picture == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, picture, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 403
+                return Forbid();
+            }
 
             DeleteImage(picture.ImageName);
 
