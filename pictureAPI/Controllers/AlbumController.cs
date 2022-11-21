@@ -55,6 +55,13 @@ namespace pictureAPI.Controllers
             var portfolio = await portfoliosRepository.GetAsync(portfolioId);
             if (portfolio == null) return NotFound($"Couldn't find a portfolio with id of {portfolioId}");
 
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, portfolio, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 403
+                return Forbid();
+            }
+
             var album = new Album {
                 Name = createAlbumDto.Name,
                 Description = createAlbumDto.Description,

@@ -49,10 +49,18 @@ namespace pictureAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.AppUser)]
         public async Task<ActionResult<PictureDto>> Create(Guid portfolioId, Guid albumId, [FromForm]CreatePictureDto createPictureDto)
         {
             var album = await albumsRepository.GetAsync(portfolioId, albumId);
             if (album == null) return NotFound($"Couldn't find a album with id of {albumId}");
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, album, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                // 403
+                return Forbid();
+            }
 
             var picture = new Picture
             {
