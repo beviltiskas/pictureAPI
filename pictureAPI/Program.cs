@@ -38,10 +38,10 @@ builder.Services.AddTransient<IPicturesRepository, PicturesRepository>();
 builder.Services.AddTransient<IAlbumsRepository, AlbumsRepository>();
 builder.Services.AddTransient<IPortfoliosRepository, PortfoliosRepository>();
 
-/*builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
+builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
 {
     build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-}));*/
+}));
 
 builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthDbSeeder>();
@@ -66,11 +66,11 @@ var app = builder.Build();
     app.UseSwaggerUI();
 }*/
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
-//app.UseStaticFiles();
+app.UseStaticFiles();
 
-//app.UseCors("corspolicy");
+app.UseCors("corspolicy");
 
 app.UseRouting();
 
@@ -78,6 +78,7 @@ app.MapControllers();
 
 //app.UseAuthorization();
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 var dbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<AuthDbSeeder>();

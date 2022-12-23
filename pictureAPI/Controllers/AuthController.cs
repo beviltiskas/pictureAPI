@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using pictureAPI.Auth;
 using pictureAPI.Auth.Model;
+using System;
 using static pictureAPI.Auth.Model.AuthDtos;
 
 namespace pictureAPI.Controllers
@@ -60,6 +61,18 @@ namespace pictureAPI.Controllers
             var accessToken = _jwtTokenService.CreateAccessToken(user.UserName, user.Id, roles);
 
             return Ok(new SuccessfulLoginDto(accessToken));
+        }
+
+        [HttpPost]
+        [Route("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+
+            return Ok(new
+            {
+                message = "success"
+            });
         }
     }
 }
