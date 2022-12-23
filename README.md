@@ -49,6 +49,27 @@ aplikacijų programavimo sąsają. Saugoti įrašus naudosime MS SQL serverį.
 
 ![image](https://user-images.githubusercontent.com/78384738/197424123-2f3d3c70-82ac-4e32-b5d2-71276637d61f.png)
 
+<p align="center"> 1 Pav. Sistemos diegimo diagrama </p>
+
+# Ką mato vartotojas
+## Žemiau pateiktos ekrano kopijos iš skirtingų puslapio dalių
+<p align="center">
+  <img src="![image](https://user-images.githubusercontent.com/78384738/209366880-de4d7ebb-1a9f-469b-bbb9-553aa13127bb.png)" />
+  <p align="center"> 2 Pav. Sistemos pagrindinis langas </p>
+</p>
+<p align="center">
+  <img src="[![image](https://user-images.githubusercontent.com/78384738/209366938-797f8233-8ae5-44b0-91c6-37f53278eb94.png)]" />
+  <p align="center"> 3 Pav. Sistemos prisijungimo langas </p>
+</p>
+<p align="center">
+  <img src="[![image](https://user-images.githubusercontent.com/78384738/209366906-fa2318b5-7926-45dc-9fb1-c3e93fe18007.png)" />
+  <p align="center"> 4 Pav. Sistemos registracijos langas </p>
+</p>
+<p align="center">
+  <img src="[![image](https://user-images.githubusercontent.com/78384738/209366971-9a1dea51-2dc4-4d58-bfe7-262a38b84e7f.png)" />
+  <p align="center"> 5 Pav. Sistemos visų porfolių langas </p>
+</p>
+
 # API specifikacija
 ### POST /register
 
